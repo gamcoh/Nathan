@@ -1,0 +1,13 @@
+datasets/archive
+datasets/data
+datasets/face_age
+datasets/faces
+datasets/images
+
+venv
+
+.ipynb_checkpoints
+
+.vscode
+
+.pylintrc
