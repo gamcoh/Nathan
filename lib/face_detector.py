@@ -1,12 +1,15 @@
 import cv2
 import numpy as np
+import os
 
 class FaceDetector:
     def __init__(self):
-        self.net = cv2.dnn.readNet('../face_detector/deploy.protoxt',
-                                   '../face_detector/res10_300x300_ssd_iter_140000.caffemodel')
+        cur_dir = os.path.dirname(__file__)
+        proto_path = os.path.realpath(os.path.join(cur_dir, '../face_detector/deploy.protoxt'))
+        weights_path = os.path.realpath(os.path.join(cur_dir, '../face_detector/res10_300x300_ssd_iter_140000.caffemodel'))
+        self.net = cv2.dnn.readNet(proto_path, weights_path)
 
-    def get_detections(self, image, threshold:float = .6, margin: int = 3) -> list:
+    def get_detections(self, image, threshold:float = .6, margin: int = 20) -> list:
         blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300), (104.0, 177.0, 123.0))
         self.net.setInput(blob)
         detections = self.net.forward()
