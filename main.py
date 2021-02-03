@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 
 from tensorflow.keras.models import load_model
@@ -23,6 +24,8 @@ labels = [
     '7_13'
 ]
 
+AGES_NOT_ALLOWED = [0, 1, 5, 8]
+
 model = load_model('./models/mobilenet_128_img_200_b64.h5')
 face_detector = FaceDetector()
 
@@ -31,8 +34,11 @@ while True:
     if not ret:
         break
 
-    ages_in_image = []
-    faces = face_detector.get_detections(frame)
+    ages_in_image = ''
+    faces = face_detector.get_detections(frame, margin=4)
+    if len(faces) < 1:
+        continue
+
     for face in faces:
         sx, sy, ex, ey = face
         cv2.rectangle(frame, (sx, sy), (ex, ey), (255, 0, 0), thickness=2)
@@ -46,11 +52,16 @@ while True:
         prediction = list(prediction[0])
         index = prediction.index(max(prediction))
         label = labels[index]
-        ages_in_image.append(label)
+        ages_in_image = label
 
     print(ages_in_image)
-    frame = cv2.flip(frame, 1)
-    cv2.imshow('osef', frame)
+
+    # Lock the screen if a child face were found
+    index = labels.index(ages_in_image)
+    if index in AGES_NOT_ALLOWED:
+        os.system('systemctl suspend')
+        break
+
     keypress = cv2.waitKey(1) & 0xFF
     if keypress == ord('q'):
         cv2.destroyAllWindows()
